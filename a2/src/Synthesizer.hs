@@ -18,24 +18,17 @@ import Data.List
 import Data.Maybe
 
 numberSplit :: Int -> [(Int,Int)]
-numberSplit n =
-    case n of
-        0 -> []
-        1 -> []
-        _ -> helpSplit n (n-1) []
-    where
-        helpSplit :: Int -> Int -> [(Int, Int)] -> [(Int, Int)]
-        helpSplit _ 0 acc = 
-            acc
-        helpSplit n i acc =
-            helpSplit n (i-1) ((i, n-i):acc)
+numberSplit n
+    | n <= 1 = []
+    | otherwise = [(i, n-i) | i <- [1..(n-1)]]
 
 
 {-  This should only return a nonempty list at size 1.
     At size 1, it should return a list consisting of the two base expressions
 -}
 baseExpressionsAtSize :: Int -> [Expression]
-baseExpressionsAtSize = error "Unimplemented"
+baseExpressionsAtSize 1 = [EBase False, EBase True]
+baseExpressionsAtSize _ = []
 
 
 {-  This should only return a nonempty list at size 1.
@@ -44,7 +37,9 @@ baseExpressionsAtSize = error "Unimplemented"
     HINT: fmap will be useful here.
 -}
 varExpressionsAtSize :: Context -> Int -> [Expression]
-varExpressionsAtSize = error "Unimplemented"
+varExpressionsAtSize (Context s) 1 = 
+    fmap EVariable s
+varExpressionsAtSize _ _ = []
 
 {-  At size 0, it should return an empty list.
     At other sizes, it should call the provided function to get expressions of
@@ -54,7 +49,11 @@ varExpressionsAtSize = error "Unimplemented"
     HINT: fmap will be useful here.
 -}
 notExpressionsAtSize :: (Int -> [Expression]) -> Int -> [Expression]
-notExpressionsAtSize = error "Unimplemented"
+notExpressionsAtSize _ 0 = []
+notExpressionsAtSize f n =
+    fmap ENot (f (n-1))
+
+
 
 {-  At size 0, it should return an empty list.
     At other sizes, it should call the provided function to get expressions of
