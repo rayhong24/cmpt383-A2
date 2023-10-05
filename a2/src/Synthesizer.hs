@@ -18,7 +18,18 @@ import Data.List
 import Data.Maybe
 
 numberSplit :: Int -> [(Int,Int)]
-numberSplit = error "Unimplemented"
+numberSplit n =
+    case n of
+        0 -> []
+        1 -> []
+        _ -> helpSplit n (n-1) []
+    where
+        helpSplit :: Int -> Int -> [(Int, Int)] -> [(Int, Int)]
+        helpSplit _ 0 acc = 
+            acc
+        helpSplit n i acc =
+            helpSplit n (i-1) ((i, n-i):acc)
+
 
 {-  This should only return a nonempty list at size 1.
     At size 1, it should return a list consisting of the two base expressions
