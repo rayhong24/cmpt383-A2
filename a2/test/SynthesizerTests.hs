@@ -49,7 +49,17 @@ test_notExpressionsAtSize =
 
 test_andExpressionsAtSize :: TestSuite
 test_andExpressionsAtSize =
-    [ ("test_andExpressionsAtSizeBasic0", testEqual 
+    [ ("test_andExpressionsAtSizeCustom0", testEqual 
+        []
+        (sort
+            (andExpressionsAtSize 
+                (\ i -> if i == 1 then 
+                        [EBase True,EBase False] 
+                    else if i == 2 then 
+                        [ENot (EBase True),ENot (EBase False)] 
+                    else []) 
+                0)))
+    , ("test_andExpressionsAtSizeBasic0", testEqual 
         [EAnd (EBase False,EBase False)
         ,EAnd (EBase False,EBase True)
         ,EAnd (EBase True,EBase False)
@@ -139,7 +149,8 @@ test_expressionSatisfiesExamples =
     , ("test_expressionSatisfiesExamplesBasic3", testEqual True (expressionSatisfiesExamples (Examples [(Assignment [],False)]) (EBase False)))
     , ("test_expressionSatisfiesExamplesBasic4", testEqual True (expressionSatisfiesExamples (Examples []) (EBase False)))
     , ("test_expressionSatisfiesExamplesBasic5", testEqual True (expressionSatisfiesExamples (Examples []) (EBase True)))
-    , ("test_expressionSatisfiesExamplesBasic6", testEqual True (expressionSatisfiesExamples (Examples [(Assignment [("a",True)],True),(Assignment [("a",False)],False)]) (EVariable "a"))) ]
+    , ("test_expressionSatisfiesExamplesBasic6", testEqual True (expressionSatisfiesExamples (Examples [(Assignment [("a",True)],True),(Assignment [("a",False)],False)]) (EVariable "a")))
+    , ("test_expressionSatisfiesExamplesBasic6", testEqual False (expressionSatisfiesExamples (Examples [(Assignment [("a",True)],True),(Assignment [("a",False)],False), (Assignment [("a",True)], False)]) (EVariable "a"))) ]
 
 test_generator :: TestSuite
 test_generator =

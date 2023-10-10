@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-module Synthesizer 
+module Synthesizer
     (numberSplit
     ,baseExpressionsAtSize
     ,varExpressionsAtSize
@@ -37,7 +37,7 @@ baseExpressionsAtSize _ = []
     HINT: fmap will be useful here.
 -}
 varExpressionsAtSize :: Context -> Int -> [Expression]
-varExpressionsAtSize (Context s) 1 = 
+varExpressionsAtSize (Context s) 1 =
     fmap EVariable s
 varExpressionsAtSize _ _ = []
 
@@ -65,9 +65,14 @@ notExpressionsAtSize f n =
     HINT: numbersplit will be useful here.
 -}
 andExpressionsAtSize :: (Int -> [Expression]) -> Int -> [Expression]
-andExpressionsAtSize f 0 = []
-andExpressionsAtSize f n = do
-    error "Unimplemented"
+andExpressionsAtSize f n =
+    do
+        numberPairs <- numberSplit (n-1)
+        l1 <- f (fst numberPairs)
+        l2 <- f (snd numberPairs)
+        return (EAnd (l1, l2))
+
+
 
 {-  At size 0, it should return an empty list.
     At other sizes, it should call the provided function to get expressions of
@@ -79,23 +84,37 @@ andExpressionsAtSize f n = do
     HINT: numbersplit will be useful here.
 -}
 orExpressionsAtSize :: (Int -> [Expression]) -> Int -> [Expression]
-orExpressionsAtSize f 0 = []
-orExpressionsAtSize f n = do
-    error "Unimplemented"
+orExpressionsAtSize f n =
+    do
+        numberPairs <- numberSplit (n-1)
+        l1 <- f (fst numberPairs)
+        l2 <- f (snd numberPairs)
+        return (EOr (l1, l2))
 
 {-  This should simply call andExpressionsAtSize, orExpressionsAtSize,
     notExpressionsAtSize, varExpressionsAtSize, and baseExpressionsAtSize,
     with the appropriate arguments, and concatenate the results.
 -}
 expressionsAtSize :: Context -> Int -> [Expression]
-expressionsAtSize = error "Unimplemented"
+expressionsAtSize c 1 =
+    baseExpressionsAtSize 1 ++ varExpressionsAtSize c 1
+expressionsAtSize c n =
+    andExp ++ orExp ++ notExp
+    where
+        andExp = andExpressionsAtSize (expressionsAtSize c) n
+        orExp = orExpressionsAtSize (expressionsAtSize c) n
+        notExp = notExpressionsAtSize (expressionsAtSize c) n
+
 
 {-  Check whether a given expression satisfies the provided examples.
 
     HINT: the "all" function will be useful here.
 -}
 expressionSatisfiesExamples :: Examples -> Expression -> Bool
-expressionSatisfiesExamples = error "Unimplemented"
+expressionSatisfiesExamples (Examples lst) exp =
+    all (== True) [evaluate (fst example) exp == snd example| example <- lst]
+
+
 
 {-  Generate an expression that satisfies the examples. Check if there are 
     examples at size 1, then at size 2, ... until either there are no 
@@ -107,4 +126,15 @@ expressionSatisfiesExamples = error "Unimplemented"
     HINT: The "evaluate" function will be useful here
 -}
 generator :: Context -> Examples -> Int -> Maybe Expression
-generator = error "Unimplemented"
+generator c examples n = 
+    find (expressionSatisfiesExamples examples) (helper c examples n)
+
+    where 
+        helper :: Context -> Examples -> Int -> [Expression]
+        helper c examples n =
+            do
+                num <- [1 .. n]
+                expressionsAtSize c num
+
+
+
